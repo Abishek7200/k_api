@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JSON Data Table</title>
+  <style>
+    /* Table Styling */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    
+    th {
+      background-color: #f2f2f2;
+      position: relative;
+    }
+    
+    /* Search Input Styling */
+    .search-input {
+      position: relative;
+      top: 2px;
+      right: 2px;
+      width: 90%;
+    }
+
+    /* Custom CSS Styling */
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .container {
+      margin: 20px;
+    }
+
+    /* DataTables Styling */
+    #jsonDataTable_wrapper {
+      margin-top: 20px;
+    }
+
+    #jsonDataTable_filter input {
+      width: 200px;
+      margin-bottom: 10px;
+    }
+
+    .copy-icon {
+    position: absolute;
+    right: 4px;
+    top: 62%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    }
+
+    .copy-icon:hover {
+    color: #ffcc00;
+    }
+
+    /* Column Toggle Dropdown Styling */
+    .column-toggle-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .column-toggle-dropdown label {
+      position: relative;
+      display: inline-block;
+    }
+
+    .column-toggle-dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .column-toggle-dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .column-toggle-dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
+
+    .column-toggle-dropdown:hover .column-toggle-dropdown-content {
+      display: block;
+    }
+
+    .column-toggle-dropdown:hover .column-toggle-button {
+      background-color: #ddd;
+    }
+
+  </style>
+  <!-- Include DataTables CSS -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.2/css/jquery.dataTables.min.css">
+</head>
+<body>
+    <h1>JSON Data Table: Decision</h1>
+    <div class="container">
+        <div class="column-toggle-dropdown">
+          <!-- <div id="customerInfo" style="padding-bottom: 10px;"></div> -->
+            <button class="column-toggle-button">Toggle Columns</button>
+            <div class="column-toggle-dropdown-content">
+              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="0" checked> Article ID</label>
+              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="1" checked> Stage Name</label>
+              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="2" checked> Decision</label>
+              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="3" checked> Decision Date</label>
+              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="3" checked> Stage Version</label>
+            </div>
+        </div>
+        <table id="jsonDataTable">
+          <thead>
+            <tr>
+            <th>Article ID<span class="copy-icon article-id-icon" title="Copy all Article IDs">&#128203;</span></th>
+            <th>Stage Name</th>
+            <th>Decision</th>
+            <th>Decision Date</th>
+            <th>Stage Version</th>
+            </tr>
+        </thead>
+          <tbody></tbody>
+      </table>
+      
+  </div>
+  
+  <!-- Include DataTables JavaScript -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.11.2/js/jquery.dataTables.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
