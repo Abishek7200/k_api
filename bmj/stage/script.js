@@ -1,6 +1,4 @@
 $(document).ready(function() {
-  // Add event listener to the "Refresh" button
-  // Add event listener to the "Refresh" button
   $('#refreshButton').on('click', function() {
     // Replace 'YOUR_API_ENDPOINT' with the actual API endpoint URL
     const apiEndpoint = 'https://kriya2.kriyadocs.com/api/getarticlelist';
@@ -19,26 +17,45 @@ $(document).ready(function() {
       size: '1000'
     };
   
-    // Make the POST request to the API with 'mode: no-cors'
+    // Make the POST request to the API without 'mode: no-cors'
     fetch(apiEndpoint, {
       method: 'POST',
       mode: 'no-cors',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: requestData
+      body: JSON.stringify(requestData)
     })
-    // .then(response => response.json())
+    .then(response => response.json())
     .then(apiData => {
-      // Store the API response in LocalStorage
-      localStorage.setItem('api_response', JSON.stringify(apiData));
-      console.log('API response stored in LocalStorage.');
+      // Convert API response to JSON string
+      const jsonData = JSON.stringify(apiData);
+  
+      // Create a Blob with the JSON data
+      const blob = new Blob([jsonData], { type: 'application/json' });
+  
+      // Create a URL for the Blob
+      const url = URL.createObjectURL(blob);
+  
+      // Create an anchor element to trigger the download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'api_response.json';
+  
+      // Trigger the download
+      a.click();
+  
+      // Release the object URL after download
+      URL.revokeObjectURL(url);
+  
+      console.log('API response saved as JSON file.');
     })
     .catch(error => {
       console.error('Error fetching data:', error);
       // Handle error if necessary
     });
   });
+  
   
   // Fetch data and initialize DataTable
   fetch('../data.json')
@@ -72,6 +89,7 @@ $(document).ready(function() {
         articleStages.forEach(stage => {
           const startDate = stage['start-date'];
           const endDate = stage['end-date'];
+          const comments = stage['comments'];
           const startDatedata = new Date(startDate);
           const endDatedate = new Date(endDate);
           const daysInProd = stage['days-in-production'];
@@ -83,6 +101,7 @@ $(document).ready(function() {
             name: stage.name,
             assigned: stage.assigned.to,
             status: stage.status,
+            comments: stage.comments,
             startDate: startDate,
             endDate: endDate,
             stageDuration: stageDuration,
@@ -106,6 +125,7 @@ $(document).ready(function() {
           { title: 'Stage Name', data: 'name', defaultContent: '', orderable: false },
           { title: 'Assigned to', data: 'assigned', defaultContent: '', orderable: false },
           { title: 'Status', data: 'status', defaultContent: '', orderable: false },
+          { title: 'Comments', data: 'comments', defaultContent: '', orderable: false },
           { title: 'Start Date', data: 'startDate', defaultContent: '', orderable: false },
           { title: 'End Date', data: 'endDate', defaultContent: '', orderable: false },
           // { title: 'Stage Duration', data: 'stageDuration', defaultContent: '', orderable: false },
