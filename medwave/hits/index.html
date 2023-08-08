@@ -91,66 +91,103 @@
       display: block;
     }
 
-    .column-toggle-dropdown-content a:hover {
-      background-color: #f1f1f1;
+    #exportExcelButton {
+        right: 20px;
+        /* position: fixed; */
     }
 
-    .column-toggle-dropdown:hover .column-toggle-dropdown-content {
-      display: block;
-    }
+    /* Add custom styling for the column hide icon */
+.column-hide-icon {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
 
-    .column-toggle-dropdown:hover .column-toggle-button {
-      background-color: #ddd;
-    }
+.column-hide-icon:hover {
+  color: #ffcc00;
+}
+
+.scroll-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-size: 24px;
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.scroll-to-top:hover {
+  opacity: 1;
+}
+
+/* Style for the table container with horizontal scroll */
+.table-container {
+  overflow-x: auto;
+  max-width: 100%;
+  margin-bottom: 10px;
+}
 
   </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Table with Export Buttons</title>
   <!-- Include DataTables CSS -->
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.2/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+  <!-- Include Buttons CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.1.1/css/buttons.dataTables.min.css">
+  <!-- Include Font Awesome CSS for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 </head>
 <body>
     <h1>JSON Data Table: Hits</h1>
     <div class="container">
         <div class="column-toggle-dropdown">
           <div id="customerInfo" style="padding-bottom: 10px;"></div>
-            <button class="column-toggle-button">Toggle Columns</button>
-            <div class="column-toggle-dropdown-content">
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="0" checked> Article ID</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="1" checked> Article Type</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="2" checked> Received Date</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="2" checked> Version</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="3" checked> Current Stage</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="4" checked> All Stage</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="5" checked> Last Decision</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="6" checked> Keywords</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="7" checked> Subject/Sections</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="8" checked> Special Issue</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="9" checked> Review Status</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="10" checked> Resubmission?</label>
-            </div>
+          <div class="btn">
+            <button id="exportExcelButton">Export Excel</button>
+          </div>
         </div>
     <table id="jsonDataTable">
     <thead>
         <tr>
-        <th>Article ID<span class="copy-icon" title="Copy all Article IDs">&#128203;</span></th>
+        <th>Article ID</th>
         <th>Article Type</th>
         <th>Received Date</th>
         <th>Version</th>
         <th>Current Stage</th>
         <th>All Stage</th>
         <th>Last Decision</th>
+        <th>Last Decision Date</th>
         <th>Keywords</th>
         <th>Subject/Sections</th>
         <th>Special Issue</th>
         <th>Review Status</th>
         <th>Resubmission ?</th>
+        <th>Resubmission Start Date</th>
+        <th>Resubmission End Date</th>
+        <th>Time Taken for Resubmission</th>
+        <!-- <th>Time Taken from received to last decision<span class="copy-icon" title="Copy all Time taken"><i class="copy-icon time-taken">&#128203;</span></th> -->
         </tr>
     </thead>
     <tbody></tbody>
     </table>
   </div>
+    <div class="scroll-to-top" title="Scroll to Top">
+      <i class="fas fa-arrow-up"></i>
+    </div>
   
   <!-- Include DataTables JavaScript -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
   <script src="https://cdn.datatables.net/1.11.2/js/jquery.dataTables.min.js"></script>
   <script src="script.js"></script>
 </body>

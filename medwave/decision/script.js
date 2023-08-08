@@ -67,36 +67,61 @@ $(document).ready(function() {
       $('#jsonDataTable th').eq(3).css('width', '20%'); // Set width for the fourth column
       $('#jsonDataTable th').eq(4).css('width', '20%'); // Set width for the fifth column
 
-      // Add search functionality to all table columns
-      table.columns().every(function() {
-        var column = this;
-        var header = $(column.header());
-
-        $('<input type="text" class="column-search" placeholder="Search...">')
-          .appendTo(header)
-          .on('keyup change', function() {
-            var searchValue = this.value;
-
-            // Split the search value by " | " to get multiple article IDs
-            var searchArray = searchValue.split(' | ');
-
-            // Apply the search for each article ID individually
-            column
-              .search(searchArray.join('|'), true, false, '|')
-              .draw();
-          });
+      // Add event listener to export Excel button
+      document.getElementById("exportExcelButton").addEventListener("click", () => {
+        const dataTable = table.table().node();
+        const ws = XLSX.utils.table_to_sheet(dataTable);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "DataTable");
+        XLSX.writeFile(wb, "table_data.xlsx");
       });
 
-      // Column Toggle Event
-      $('.column-toggle-checkbox').on('change', function() {
-        var columnIndex = $(this).data('column-index');
-        var column = table.column(columnIndex);
-        column.visible($(this).is(':checked'));
-      });
+      // Update customer information
+      const hitsCount = data.hits.length; // Update hits count based on the data
+      const customerInfo = document.getElementById("customerInfo");
+      customerInfo.innerHTML = `Customer: Lithosphere (${hitsCount})`;
 
-      // Toggle Columns Dropdown
-      $('.column-toggle-button').on('click', function() {
-        $(this).siblings('.column-toggle-dropdown-content').toggle();
-      });
+    // Add search functionality to all table columns
+    table.columns().every(function () {
+      var column = this;
+      var header = $(column.header());
+
+      $('<input type="text" class="column-search" placeholder="Search...">')
+        .appendTo(header)
+        .on("keyup change", function () {
+          var searchValue = this.value;
+
+          // Split the search value by " | " to get multiple article IDs
+          var searchArray = searchValue.split(" | ");
+
+          // Apply the search for each article ID individually
+          column
+            .search(searchArray.join("|"), true, false, "|")
+            .draw();
+        });
+    });    
+
+    const dataTable = $("#jsonDataTable").DataTable();
+
+    // Add event listener to hide columns
+  $("thead th").each(function (index) {
+    const $th = $(this);
+    $th.append('<span class="column-hide-icon" data-column-index="' + index + '">&times;</span>');
+  });
+
+  $(document).on("click", ".column-hide-icon", function () {
+    const columnIndex = $(this).data("column-index");
+    dataTable.column(columnIndex).visible(false);
+  });
+
+  // Add event listener to scroll-to-top icon
+  const scrollToTopButton = document.querySelector(".scroll-to-top");
+  scrollToTopButton.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  });
+  
     });
 });

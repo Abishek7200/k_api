@@ -1,4 +1,62 @@
 $(document).ready(function() {
+  $('#refreshButton').on('click', function() {
+    // Replace 'YOUR_API_ENDPOINT' with the actual API endpoint URL
+    const apiEndpoint = 'https://kriya2.kriyadocs.com/api/getarticlelist';
+  
+    // Create the request data object
+    const requestData = {
+      customer: 'gsw',
+      project: 'lithosphere',
+      urlToPost: 'getArticlesList',
+      version: 'v2.0',
+      workflowStatus: 'in-progress OR completed',
+      apiKey: '0e78ffad-4705-414b-836e-b6893ab3abc6',
+      excludeStageArticles: 'Banked',
+      excludeObjects: 'stage.job-logs',
+      from: '0',
+      size: '1000'
+    };
+  
+    // Make the POST request to the API without 'mode: no-cors'
+    fetch(apiEndpoint, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(apiData => {
+      // Convert API response to JSON string
+      const jsonData = JSON.stringify(apiData);
+  
+      // Create a Blob with the JSON data
+      const blob = new Blob([jsonData], { type: 'application/json' });
+  
+      // Create a URL for the Blob
+      const url = URL.createObjectURL(blob);
+  
+      // Create an anchor element to trigger the download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'api_response.json';
+  
+      // Trigger the download
+      a.click();
+  
+      // Release the object URL after download
+      URL.revokeObjectURL(url);
+  
+      console.log('API response saved as JSON file.');
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+      // Handle error if necessary
+    });
+  });
+  
+  
   // Fetch data and initialize DataTable
   fetch('../data.json')
     .then(response => response.json())
@@ -31,6 +89,7 @@ $(document).ready(function() {
         articleStages.forEach(stage => {
           const startDate = stage['start-date'];
           const endDate = stage['end-date'];
+          const comments = stage['comments'];
           const startDatedata = new Date(startDate);
           const endDatedate = new Date(endDate);
           const daysInProd = stage['days-in-production'];
@@ -40,6 +99,9 @@ $(document).ready(function() {
           stages.push({
             id: articleId,
             name: stage.name,
+            assigned: stage.assigned.to,
+            status: stage.status,
+            comments: stage.comments,
             startDate: startDate,
             endDate: endDate,
             stageDuration: stageDuration,
@@ -61,6 +123,9 @@ $(document).ready(function() {
             }
           },
           { title: 'Stage Name', data: 'name', defaultContent: '', orderable: false },
+          { title: 'Assigned to', data: 'assigned', defaultContent: '', orderable: false },
+          { title: 'Status', data: 'status', defaultContent: '', orderable: false },
+          { title: 'Comments', data: 'comments', defaultContent: '', orderable: false },
           { title: 'Start Date', data: 'startDate', defaultContent: '', orderable: false },
           { title: 'End Date', data: 'endDate', defaultContent: '', orderable: false },
           // { title: 'Stage Duration', data: 'stageDuration', defaultContent: '', orderable: false },
@@ -99,59 +164,61 @@ $(document).ready(function() {
       $('#jsonDataTable th').eq(4).css('width', '20%'); // Set width for the fifth column
       $('#jsonDataTable th').eq(5).css('width', '20%'); // Set width for the sixth column
 
-      // Add search functionality to all table columns
-      table.columns().every(function() {
-        var column = this;
-        var header = $(column.header());
-
-        $('<input type="text" class="column-search" placeholder="Search...">')
-          .appendTo(header)
-          .on('keyup change', function() {
-            var searchValue = this.value;
-
-            // Split the search value by " | " to get multiple article IDs
-            var searchArray = searchValue.split(' | ');
-
-            // Apply the search for each article ID individually
-            column
-              .search(searchArray.join('|'), true, false, '|')
-              .draw();
-          });
+      // Add event listener to export Excel button
+      document.getElementById("exportExcelButton").addEventListener("click", () => {
+        const dataTable = table.table().node();
+        const ws = XLSX.utils.table_to_sheet(dataTable);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "DataTable");
+        XLSX.writeFile(wb, "table_data.xlsx");
       });
 
-      // Column Toggle Event
-      $('.column-toggle-checkbox').on('change', function() {
-        var columnIndex = $(this).data('column-index');
-        var column = table.column(columnIndex);
-        column.visible($(this).is(':checked'));
-      });
+      // Update customer information
+      const hitsCount = data.hits.length; // Update hits count based on the data
+      const customerInfo = document.getElementById("customerInfo");
+      customerInfo.innerHTML = `Customer: Lithosphere (${hitsCount})`;
 
-      // Toggle Columns Dropdown
-      $('.column-toggle-button').on('click', function() {
-        $(this).siblings('.column-toggle-dropdown-content').toggle();
-      });
+    // Add search functionality to all table columns
+    table.columns().every(function () {
+      var column = this;
+      var header = $(column.header());
 
-      // Copy Article ID
-      $('.copy-icon.article-id-icon').on('click', function() {
-        var articleIDs = [];
-        table.rows({ search: 'applied' }).every(function() {
-          var data = this.data();
-          articleIDs.push(data.id);
+      $('<input type="text" class="column-search" placeholder="Search...">')
+        .appendTo(header)
+        .on("keyup change", function () {
+          var searchValue = this.value;
+
+          // Split the search value by " | " to get multiple article IDs
+          var searchArray = searchValue.split(" | ");
+
+          // Apply the search for each article ID individually
+          column
+            .search(searchArray.join("|"), true, false, "|")
+            .draw();
         });
+    });    
 
-        var textToCopy = articleIDs.join('\n');
-        copyToClipboard(textToCopy);
-        alert('Article IDs copied to clipboard: \n' + textToCopy);
-      });
+    const dataTable = $("#jsonDataTable").DataTable();
 
-      // Copy to Clipboard function
-      function copyToClipboard(text) {
-        var textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-      }
+    // Add event listener to hide columns
+  $("thead th").each(function (index) {
+    const $th = $(this);
+    $th.append('<span class="column-hide-icon" data-column-index="' + index + '">&times;</span>');
+  });
+
+  $(document).on("click", ".column-hide-icon", function () {
+    const columnIndex = $(this).data("column-index");
+    dataTable.column(columnIndex).visible(false);
+  });
+
+  // Add event listener to scroll-to-top icon
+  const scrollToTopButton = document.querySelector(".scroll-to-top");
+  scrollToTopButton.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  });
+  
     });
 });

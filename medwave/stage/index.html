@@ -1,132 +1,169 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>JSON Data Table</title>
-  <style>
-    /* Table Styling */
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-    
-    th {
-      background-color: #f2f2f2;
-      position: relative;
-    }
-    
-    /* Search Input Styling */
-    .search-input {
-      position: relative;
-      top: 2px;
-      right: 2px;
-      width: 90%;
-    }
-
-    /* Custom CSS Styling */
-    body {
-      font-family: Arial, sans-serif;
-    }
-
-    h1 {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .container {
-      margin: 20px;
-    }
-
-    /* DataTables Styling */
-    #jsonDataTable_wrapper {
-      margin-top: 20px;
-    }
-
-    #jsonDataTable_filter input {
-      width: 200px;
-      margin-bottom: 10px;
-    }
-
-    .copy-icon {
+  <head>
+    <title>JSON Data Table</title>
+    <style>
+      /* Table Styling */
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      
+      th {
+        background-color: #f2f2f2;
+        position: relative;
+      }
+      
+      /* Search Input Styling */
+      .search-input {
+        position: relative;
+        top: 2px;
+        right: 2px;
+        width: 90%;
+      }
+  
+      /* Custom CSS Styling */
+      body {
+        font-family: Arial, sans-serif;
+      }
+  
+      h1 {
+        text-align: center;
+        margin-top: 20px;
+      }
+  
+      .container {
+        margin: 20px;
+      }
+  
+      /* DataTables Styling */
+      #jsonDataTable_wrapper {
+        margin-top: 20px;
+      }
+  
+      #jsonDataTable_filter input {
+        width: 200px;
+        margin-bottom: 10px;
+      }
+  
+      .copy-icon {
+      position: absolute;
+      right: 4px;
+      top: 62%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      }
+  
+      .copy-icon:hover {
+      color: #ffcc00;
+      }
+  
+      /* Column Toggle Dropdown Styling */
+      .column-toggle-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+  
+      .column-toggle-dropdown label {
+        position: relative;
+        display: inline-block;
+      }
+  
+      .column-toggle-dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+      }
+  
+      .column-toggle-dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+      }
+  
+      #exportExcelButton {
+          right: 20px;
+          /* position: fixed; */
+      }
+  
+      /* Add custom styling for the column hide icon */
+  .column-hide-icon {
     position: absolute;
     right: 4px;
-    top: 62%;
-    transform: translateY(-50%);
+    top: 4px;
+    font-size: 12px;
     cursor: pointer;
-    }
-
-    .copy-icon:hover {
+  }
+  
+  .column-hide-icon:hover {
     color: #ffcc00;
-    }
-
-    /* Column Toggle Dropdown Styling */
-    .column-toggle-dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .column-toggle-dropdown label {
-      position: relative;
-      display: inline-block;
-    }
-
-    .column-toggle-dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #f9f9f9;
-      min-width: 160px;
-      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-      z-index: 1;
-    }
-
-    .column-toggle-dropdown-content a {
-      color: black;
-      padding: 12px 16px;
-      text-decoration: none;
-      display: block;
-    }
-
-    .column-toggle-dropdown-content a:hover {
-      background-color: #f1f1f1;
-    }
-
-    .column-toggle-dropdown:hover .column-toggle-dropdown-content {
-      display: block;
-    }
-
-    .column-toggle-dropdown:hover .column-toggle-button {
-      background-color: #ddd;
-    }
-
-  </style>
-  <!-- Include DataTables CSS -->
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.2/css/jquery.dataTables.min.css">
-</head>
+  }
+  
+  .scroll-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 24px;
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+  }
+  
+  .scroll-to-top:hover {
+    opacity: 1;
+  }
+  
+  /* Style for the table container with horizontal scroll */
+  .table-container {
+    overflow-x: auto;
+    max-width: 100%;
+    margin-bottom: 10px;
+  }
+  
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Table with Export Buttons</title>
+    <!-- Include DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <!-- Include Buttons CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.1.1/css/buttons.dataTables.min.css">
+    <!-- Include Font Awesome CSS for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  </head>
 <body>
     <h1>JSON Data Table: Stages</h1>
     <div class="container">
         <div class="column-toggle-dropdown">
-          <!-- <div id="customerInfo" style="padding-bottom: 10px;"></div> -->
-            <button class="column-toggle-button">Toggle Columns</button>
-            <div class="column-toggle-dropdown-content">
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="0" checked> Article ID</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="1" checked> Stage Name</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="2" checked> Start Date</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="3" checked> End Date</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="4" checked> Stage Duration</label>
-              <label><input type="checkbox" class="column-toggle-checkbox" data-column-index="4" checked> Days in Production</label>
-            </div>
+          <div id="customerInfo" style="padding-bottom: 10px;"></div>
+          <div class="btn">
+            <button id="exportExcelButton">Export Excel</button>
+          </div>
         </div>
         <table id="jsonDataTable">
           <thead>
             <tr>
-            <th>Article ID<span class="copy-icon article-id-icon" title="Copy all Article IDs">&#128203;</span></th>
+            <th>Article ID</th>
             <th>Stage Name</th>
+            <th>Assigned To</th>
+            <th>Status</th>
+            <th>Comments</th>
             <th>Start Date</th>
             <th>End Date</th>
             <th>Stage Duration</th>
@@ -135,11 +172,14 @@
         </thead>
           <tbody></tbody>
       </table>
-      
+      <div class="scroll-to-top" title="Scroll to Top">
+        <i class="fas fa-arrow-up"></i>
+      </div>  
   </div>
   
   <!-- Include DataTables JavaScript -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
   <script src="https://cdn.datatables.net/1.11.2/js/jquery.dataTables.min.js"></script>
   <script src="script.js"></script>
 </body>

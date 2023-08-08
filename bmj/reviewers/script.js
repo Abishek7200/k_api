@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
+  let table;
+
   fetch("../data.json")
     .then((response) => response.json())
     .then((data) => {
@@ -8,13 +10,16 @@ document.addEventListener("DOMContentLoaded", () => {
         reviewer.map((review) => [reviewerId, review]) // Include the reviewer ID with each review
       );
 
-      const table = $("#jsonDataTable").DataTable({
+      table = $("#jsonDataTable").DataTable({
         data: articleIds.map(([reviewerId, review]) => [
           reviewerId,
           `${review.name["given-names"]} ${review.name.surname}`, // Format the reviewer name
           review.email,
           review.version,
-          review.message, review["assigned-date"], review["decision-date"], review["completed-date"]
+          review.message,
+          review["assigned-date"],
+          review["decision-date"],
+          review["completed-date"],
         ]), // Format the data with reviewer ID, reviewer name, and message value
         columns: [
           { data: 0, defaultContent: "", orderable: false, width: "20%" }, // Use data index 0 for the reviewer ID
@@ -39,12 +44,32 @@ document.addEventListener("DOMContentLoaded", () => {
       $("#jsonDataTable th").eq(0).css("width", "20%"); // Set width for the first column
       $("#jsonDataTable th").eq(1).css("width", "30%"); // Set width for the second column
       $("#jsonDataTable th").eq(2).css("width", "30%"); // Set width for the third column
-      $("#jsonDataTable th").eq(5).css("width","10%"); // Set width for the third column
+      $("#jsonDataTable th").eq(5).css("width", "10%"); // Set width for the third column
 
       // Update customer information
-      const hitsCount = articleIds.length; // Update hits count based on the data
+      const hitsCount = data.hits.length; // Update hits count based on the data
       const customerInfo = document.getElementById("customerInfo");
-      customerInfo.innerHTML = `Customer: Medwave (${hitsCount})`;
+      customerInfo.innerHTML = `Customer: Lithosphere (${hitsCount})`;
+
+      // Add event listener to hide columns
+      $("thead th").each(function (index) {
+        const $th = $(this);
+        $th.append('<span class="column-hide-icon" data-column-index="' + index + '">&times;</span>');
+      });
+
+      $(document).on("click", ".column-hide-icon", function () {
+        const columnIndex = $(this).data("column-index");
+        table.column(columnIndex).visible(false);
+      });
+
+      // Add event listener to scroll-to-top icon
+      const scrollToTopButton = document.querySelector(".scroll-to-top");
+      scrollToTopButton.addEventListener("click", () => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      });
 
       // Add search functionality to all table columns
       table.columns().every(function () {
@@ -60,47 +85,20 @@ document.addEventListener("DOMContentLoaded", () => {
             var searchArray = searchValue.split(" | ");
 
             // Apply the search for each article ID individually
-            column
-              .search(searchArray.join("|"), true, false, "|")
-              .draw();
+            column.search(searchArray.join("|"), true, false, "|").draw();
           });
       });
 
-      // Column Toggle Event
-      $(".column-toggle-checkbox").on("change", function () {
-        var columnIndex = $(this).data("column-index");
-        var column = table.column(columnIndex);
-        column.visible($(this).is(":checked"));
-      });
-
-      // Toggle Columns Dropdown
-      $(".column-toggle-button").on("click", function () {
-        $(this).siblings(".column-toggle-dropdown-content").toggle();
-      });
-
-      // Add click event listener to the copy icon
-      document.querySelector(".copy-icon").addEventListener("click", () => {
-        const articleIds = Array.from(
-          document.querySelectorAll("#jsonDataTable tbody tr td:first-child")
-        )
-          .map((td) => td.textContent)
-          .join("\n");
-
-        copyToClipboard(articleIds);
-        alert("Article IDs copied!");
+      // Add event listener to export Excel button
+      document.getElementById("exportExcelButton").addEventListener("click", () => {
+        const dataTable = table.table().node();
+        const ws = XLSX.utils.table_to_sheet(dataTable);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "DataTable");
+        XLSX.writeFile(wb, "table_data.xlsx");
       });
     })
     .catch((error) => {
       console.log("Error fetching data:", error);
     });
 });
-
-// Function to copy text to clipboard
-function copyToClipboard(text) {
-  const el = document.createElement("textarea");
-  el.value = text;
-  document.body.appendChild(el);
-  el.select();
-  document.execCommand("copy");
-  document.body.removeChild(el);
-}

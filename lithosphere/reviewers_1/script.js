@@ -73,6 +73,36 @@ document.addEventListener("DOMContentLoaded", () => {
       $("#jsonDataTable th").eq(2).css("width", "30%");
       $("#jsonDataTable th").eq(5).css("width", "10%");
 
+      // Add event listener to export Excel button
+      document.getElementById("exportExcelButton").addEventListener("click", () => {
+        const dataTable = table.table().node();
+        const ws = XLSX.utils.table_to_sheet(dataTable);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "DataTable");
+        XLSX.writeFile(wb, "table_data.xlsx");
+      });
+
+      // Add event listener to hide columns
+  $("thead th").each(function (index) {
+    const $th = $(this);
+    $th.append('<span class="column-hide-icon" data-column-index="' + index + '">&times;</span>');
+  });
+
+  $(document).on("click", ".column-hide-icon", function () {
+    const columnIndex = $(this).data("column-index");
+    table.column(columnIndex).visible(false);
+  });
+
+  // Add event listener to scroll-to-top icon
+  const scrollToTopButton = document.querySelector(".scroll-to-top");
+  scrollToTopButton.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  });
+
+
       // Update customer information
       const hitsCount = extractedData.length;
       const customerInfo = document.getElementById("customerInfo");
